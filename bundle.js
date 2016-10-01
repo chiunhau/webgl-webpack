@@ -68,10 +68,12 @@
 	gl.enable(gl.DEPTH_TEST);
 
 	var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
-	var colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
+	var normalAttributeLocation = gl.getAttribLocation(program, 'a_normal');
 	// var colorUniformLocation = gl.getUniformLocation(program, 'u_color');
 	var matrixUniformLocation = gl.getUniformLocation(program, 'u_matrix');
 	var fudgeLocation = gl.getUniformLocation(program, 'u_fudgeFactor');
+	var colorLocation = gl.getUniformLocation(program, "u_color");
+	var reverseLightDirectionLocation = gl.getUniformLocation(program, "u_reverseLightDirection");
 
 	var positionBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -80,10 +82,10 @@
 
 	setGeometry();
 
-	var colorBuffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-	gl.enableVertexAttribArray(colorAttributeLocation);
-	gl.vertexAttribPointer(colorAttributeLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+	var normalBuffer = gl.createBuffer();
+	gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+	gl.enableVertexAttribArray(normalAttributeLocation);
+	gl.vertexAttribPointer(normalAttributeLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
 	setColor();
 
@@ -141,6 +143,11 @@
 
 	  gl.uniform1f(fudgeLocation, params.fudgeFactor);
 	  gl.uniformMatrix4fv(matrixUniformLocation, false, transformation);
+	  // Set the color to use
+	  gl.uniform4fv(colorLocation, [1, 1, 1, 1]); // green
+
+	  // set the light direction.
+	  gl.uniform3fv(reverseLightDirectionLocation, normalize([0.5, 0.7, 1]));
 	  gl.drawArrays(gl.TRIANGLES, 0, 36);
 
 	  // requestAnimationFrame(draw);
@@ -215,20 +222,37 @@
 	  ]), gl.STATIC_DRAW);
 	}
 
+	function setNormals() {
+	  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(geometries.cubeNormals()), gl.STATIC_DRAW);
+	}
+
+	function normalize(a) {
+	  var r = [];
+	  var s = 0;
+	  for(var i = 0; i < a.length; i ++) {
+	    s += a[i];
+	  }
+	  for(var i = 0; i < a.length; i ++) {
+	    r.push(a[i] / s);
+	  }
+
+	  return r
+	}
+
 
 /***/ },
 
 /***/ 1:
 /***/ function(module, exports) {
 
-	module.exports = "attribute vec4 a_position;\nattribute vec4 a_color;\n\nuniform float u_fudgeFactor;\nuniform mat4 u_matrix;\nvarying vec4 v_color;\n\nvoid main() {\n  vec4 position = u_matrix * a_position;\n  float zToDivideBy = 1.0 + position.z * u_fudgeFactor;\n  gl_Position = vec4(position.xy / zToDivideBy, position.zw);\n\n  v_color = a_color;\n}\n"
+	module.exports = "attribute vec4 a_position;\nattribute vec3 a_normal;\n\nuniform mat4 u_worldViewProjection;\nuniform mat4 u_world;\n\nuniform float u_fudgeFactor;\nuniform mat4 u_matrix;\nvarying vec3 v_normal;\n\nvoid main() {\n  vec4 position = u_matrix * a_position;\n  float zToDivideBy = 1.0 + position.z * u_fudgeFactor;\n  gl_Position = vec4(position.xy / zToDivideBy, position.zw);\n\n  // gl_Position = u_worldViewProjection * a_position;\n\n  v_normal = a_normal;\n}\n"
 
 /***/ },
 
 /***/ 2:
 /***/ function(module, exports) {
 
-	module.exports = "precision mediump float;\n\nvarying vec4 v_color;\n\nvoid main() {\n  gl_FragColor = v_color;\n}\n"
+	module.exports = "precision mediump float;\n\nvarying vec3 v_normal;\n\nuniform vec3 u_reverseLightDirection;\nuniform vec4 u_color;\n\nvoid main() {\n  vec3 normal = normalize(v_normal);\n\n  float light = dot(normal, u_reverseLightDirection);\n\n  gl_FragColor = u_color;\n\n  // Lets multiply just the color portion (not the alpha)\n  // by the light\n  gl_FragColor.rgb *= light;\n}\n"
 
 /***/ },
 
@@ -442,6 +466,56 @@
 	      l, l, 0,
 	      0, l, l,
 	      l, l, l
+	    ];
+	  },
+	  cubeNormals: function(l) {
+	    return [
+	      //front
+	      0, 0, 1,
+	      0, 0, 1,
+	      0, 0, 1,
+	      0, 0, 1,
+	      0, 0, 1,
+	      0, 0, 1,
+	      //left
+	      -1, 0, 0,
+	      -1, 0, 0,
+	      -1, 0, 0,
+	      -1, 0, 0,
+	      -1, 0, 0,
+	      -1, 0, 0,
+
+	      //right
+	      1, 0, 0,
+	      1, 0, 0,
+	      1, 0, 0,
+	      1, 0, 0,
+	      1, 0, 0,
+	      1, 0, 0,
+
+	      //back
+	      0, 0, -1,
+	      0, 0, -1,
+	      0, 0, -1,
+	      0, 0, -1,
+	      0, 0, -1,
+	      0, 0, -1,
+
+	      //top
+	      0, 1, 0,
+	      0, 1, 0,
+	      0, 1, 0,
+	      0, 1, 0,
+	      0, 1, 0,
+	      0, 1, 0,
+
+	      //bottom
+	      0, -1, 0,
+	      0, -1, 0,
+	      0, -1, 0,
+	      0, -1, 0,
+	      0, -1, 0,
+	      0, -1, 0,
 	    ];
 	  }
 	}

@@ -21,10 +21,12 @@ gl.enable(gl.CULL_FACE);
 gl.enable(gl.DEPTH_TEST);
 
 var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
-var colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
+var normalAttributeLocation = gl.getAttribLocation(program, 'a_normal');
 // var colorUniformLocation = gl.getUniformLocation(program, 'u_color');
 var matrixUniformLocation = gl.getUniformLocation(program, 'u_matrix');
 var fudgeLocation = gl.getUniformLocation(program, 'u_fudgeFactor');
+var colorLocation = gl.getUniformLocation(program, "u_color");
+var reverseLightDirectionLocation = gl.getUniformLocation(program, "u_reverseLightDirection");
 
 var positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -33,10 +35,10 @@ gl.vertexAttribPointer(positionAttributeLocation, 3, gl.FLOAT, false, 0, 0);
 
 setGeometry();
 
-var colorBuffer = gl.createBuffer();
-gl.bindBuffer(gl.ARRAY_BUFFER, colorBuffer);
-gl.enableVertexAttribArray(colorAttributeLocation);
-gl.vertexAttribPointer(colorAttributeLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
+var normalBuffer = gl.createBuffer();
+gl.bindBuffer(gl.ARRAY_BUFFER, normalBuffer);
+gl.enableVertexAttribArray(normalAttributeLocation);
+gl.vertexAttribPointer(normalAttributeLocation, 3, gl.UNSIGNED_BYTE, true, 0, 0);
 
 setColor();
 
@@ -94,6 +96,11 @@ function draw() {
 
   gl.uniform1f(fudgeLocation, params.fudgeFactor);
   gl.uniformMatrix4fv(matrixUniformLocation, false, transformation);
+  // Set the color to use
+  gl.uniform4fv(colorLocation, [1, 1, 1, 1]); // green
+
+  // set the light direction.
+  gl.uniform3fv(reverseLightDirectionLocation, normalize([0.5, 0.7, 1]));
   gl.drawArrays(gl.TRIANGLES, 0, 36);
 
   // requestAnimationFrame(draw);
@@ -166,4 +173,21 @@ function setColor() {
     0, 255, 255,
     0, 255, 255
   ]), gl.STATIC_DRAW);
+}
+
+function setNormals() {
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(geometries.cubeNormals()), gl.STATIC_DRAW);
+}
+
+function normalize(a) {
+  var r = [];
+  var s = 0;
+  for(var i = 0; i < a.length; i ++) {
+    s += a[i];
+  }
+  for(var i = 0; i < a.length; i ++) {
+    r.push(a[i] / s);
+  }
+
+  return r
 }
