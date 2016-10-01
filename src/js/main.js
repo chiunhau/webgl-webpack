@@ -5,6 +5,9 @@ var creator = require('./creator.js');
 var matrix = require('./matrix.js');
 
 var canvas = document.getElementById('myCanvas');
+canvas.width = document.body.clientWidth;
+canvas.height = document.body.clientHeight;
+
 var gl = canvas.getContext('webgl');
 
 var vShader = creator.shader(gl, gl.VERTEX_SHADER, vShaderSource);
@@ -38,12 +41,15 @@ setColor();
 // gl.uniform4f(colorUniformLocation, 1, 0, 1, 1);
 
 var params = {
-  message: 'hello',
   translateX: 500,
   translateY: 200,
+  translateZ: 0,
   rotateX: 1,
   rotateY: 1,
-  rotateZ: 0
+  rotateZ: 0,
+  scaleX: 1,
+  scaleY: 1,
+  scaleZ: 1
 }
 
 
@@ -51,9 +57,13 @@ window.onload = function() {
   var gui = new dat.GUI();
   gui.add(params, 'translateX', 0, 1000).onChange(draw);
   gui.add(params, 'translateY', 0, 1000).onChange(draw);
+  gui.add(params, 'translateZ', 0, 1000).onChange(draw);
   gui.add(params, 'rotateX', 0, 10).onChange(draw);
   gui.add(params, 'rotateY', 0, 10).onChange(draw);
   gui.add(params, 'rotateZ', 0, 10).onChange(draw);
+  gui.add(params, 'scaleX', 0, 5).onChange(draw);
+  gui.add(params, 'scaleY', 0, 5).onChange(draw);
+  gui.add(params, 'scaleZ', 0, 5).onChange(draw);
 }
 
 draw();
@@ -64,13 +74,15 @@ function draw() {
   gl.clearColor(1.0, 1.0, 1.0, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
-  var projectionMat = matrix.project(960, 600, 800);
-  var translationMat = matrix.translate(params.translateX, params.translateY, 0);
+  var projectionMat = matrix.project(gl.canvas.width, gl.canvas.height, 1000);
+  var translationMat = matrix.translate(params.translateX, params.translateY, params.translateZ);
   var rotateXMat = matrix.rotateX(params.rotateX);
   var rotateYMat = matrix.rotateY(params.rotateY);
   var rotateZMat = matrix.rotateZ(params.rotateZ);
+  var scaleMat = matrix.scale(params.scaleX, params.scaleY, params.scaleZ);
 
-  var transformation = matrix.multiply(rotateXMat, rotateYMat);
+  var transformation = matrix.multiply(scaleMat, rotateXMat);
+  transformation = matrix.multiply(transformation, rotateYMat);
   transformation = matrix.multiply(transformation, rotateZMat);
   transformation = matrix.multiply(transformation, translationMat);
   transformation = matrix.multiply(transformation, projectionMat);
