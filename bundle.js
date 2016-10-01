@@ -62,7 +62,7 @@
 
 	gl.useProgram(program);
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-	gl.enable(gl.CULL_FACE);
+	// gl.enable(gl.CULL_FACE);
 	gl.enable(gl.DEPTH_TEST);
 
 	var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
@@ -185,11 +185,12 @@
 
 	    //back
 	    0, 0, -200,
-	    200, 0, -200,
 	    0, 200, -200,
 	    200, 0, -200,
+	    200, 0, -200,
+	    0, 200, -200,
 	    200, 200, -200,
-	    0, 200, -200,
+
 
 	    //top
 	    0, 0, 0,
@@ -212,7 +213,7 @@
 
 	function setColor() {
 	  gl.bufferData(gl.ARRAY_BUFFER, new Uint8Array([
-	    //front
+	    //front RED
 	    255, 0, 0,
 	    255, 0, 0,
 	    255, 0, 0,
@@ -220,7 +221,7 @@
 	    255, 0, 0,
 	    255, 0, 0,
 
-	    //left
+	    //left YELLOW
 	    255, 255, 0,
 	    255, 255, 0,
 	    255, 255, 0,
@@ -228,7 +229,7 @@
 	    255, 255, 0,
 	    255, 255, 0,
 
-	    //right
+	    //right PINK
 	    255, 0, 255,
 	    255, 0, 255,
 	    255, 0, 255,
@@ -236,7 +237,7 @@
 	    255, 0, 255,
 	    255, 0, 255,
 
-	    //back
+	    //back BLUE
 	    0, 0, 255,
 	    0, 0, 255,
 	    0, 0, 255,
@@ -244,7 +245,7 @@
 	    0, 0, 255,
 	    0, 0, 255,
 
-	    //top
+	    //top GREEN
 	    0, 255, 0,
 	    0, 255, 0,
 	    0, 255, 0,
@@ -252,7 +253,7 @@
 	    0, 255, 0,
 	    0, 255, 0,
 
-	    //bottom
+	    //bottom LIGHT BLUE
 	    0, 255, 255,
 	    0, 255, 255,
 	    0, 255, 255,
