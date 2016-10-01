@@ -59,6 +59,8 @@
 
 	gl.useProgram(program);
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+	gl.enable(gl.CULL_FACE);
+	gl.enable(gl.DEPTH_TEST);
 
 	var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
 	var colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
@@ -105,7 +107,8 @@
 
 	function draw() {
 	  //clear canvas
-	  // gl.clear(gl.COLOR_BUFFER_BIT);
+	  gl.clearColor(1.0, 1.0, 1.0, 1.0);
+	  gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
 	  var projectionMat = matrix.project(960, 600, 800);
 	  var translationMat = matrix.translate(params.translateX, params.translateY, 0);
@@ -142,8 +145,8 @@
 	  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
 	    //front
 	    0, 0, 0,
-	    200, 0, 0,
 	    0, 200, 0,
+	    200, 0, 0,
 	    200, 0, 0,
 	    0, 200, 0,
 	    200, 200, 0,
@@ -174,11 +177,11 @@
 
 	    //top
 	    0, 0, 0,
+	    200, 0, -200,
 	    0, 0, -200,
-	    200, 0, -200,
 	    0, 0, 0,
-	    200, 0, -200,
 	    200, 0, 0,
+	    200, 0, -200,
 
 	    //bottom
 	    0, 200, 0,
