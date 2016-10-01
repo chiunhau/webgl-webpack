@@ -3,6 +3,7 @@ var vShaderSource = require('../glsl/vertex.glsl');
 var fShaderSource = require('../glsl/fragment.glsl');
 var creator = require('./creator.js');
 var matrix = require('./matrix.js');
+var geometries = require('./geometries.js');
 
 var canvas = document.getElementById('myCanvas');
 canvas.width = document.body.clientWidth;
@@ -16,7 +17,7 @@ var program = creator.program(gl, vShader, fShader);
 
 gl.useProgram(program);
 gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-// gl.enable(gl.CULL_FACE);
+gl.enable(gl.CULL_FACE);
 gl.enable(gl.DEPTH_TEST);
 
 var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
@@ -42,16 +43,16 @@ setColor();
 // gl.uniform4f(colorUniformLocation, 1, 0, 1, 1);
 
 var params = {
-  translateX: 500,
+  translateX: 600,
   translateY: 200,
   translateZ: 0,
   rotateX: 1,
   rotateY: 1,
-  rotateZ: 0,
+  rotateZ: 1,
   scaleX: 1,
   scaleY: 1,
   scaleZ: 1,
-  fudgeFactor: 0.0
+  fudgeFactor: 1.0
 }
 
 
@@ -59,14 +60,14 @@ window.onload = function() {
   var gui = new dat.GUI();
   gui.add(params, 'translateX', 0, 1000).onChange(draw);
   gui.add(params, 'translateY', 0, 1000).onChange(draw);
-  gui.add(params, 'translateZ', 0, 1000).onChange(draw);
+  gui.add(params, 'translateZ', 0, 400).onChange(draw);
   gui.add(params, 'rotateX', 0, 10).onChange(draw);
   gui.add(params, 'rotateY', 0, 10).onChange(draw);
   gui.add(params, 'rotateZ', 0, 10).onChange(draw);
   gui.add(params, 'scaleX', 0, 5).onChange(draw);
   gui.add(params, 'scaleY', 0, 5).onChange(draw);
   gui.add(params, 'scaleZ', 0, 5).onChange(draw);
-  gui.add(params, 'fudgeFactor', 0.0, 1.0).onChange(draw);
+  gui.add(params, 'fudgeFactor', 0.0, 2.0).onChange(draw);
 }
 
 draw();
@@ -112,57 +113,7 @@ function setTriangle(gl, x1, y1, z1, x2, y2, z2, x3, y3, z3) {
 }
 
 function setGeometry() {
-  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-    //front
-    0, 0, 0,
-    0, 200, 0,
-    200, 0, 0,
-    200, 0, 0,
-    0, 200, 0,
-    200, 200, 0,
-
-    //left
-    0, 0, 0,
-    0, 0, -200,
-    0, 200, -200,
-    0, 0, 0,
-    0, 200, -200,
-    0, 200, 0,
-
-    //right
-    200, 0, 0,
-    200, 200, 0,
-    200, 0, -200,
-    200, 0, -200,
-    200, 200, 0,
-    200, 200, -200,
-
-    //back
-    0, 0, -200,
-    0, 200, -200,
-    200, 0, -200,
-    200, 0, -200,
-    0, 200, -200,
-    200, 200, -200,
-
-
-    //top
-    0, 0, 0,
-    200, 0, -200,
-    0, 0, -200,
-    0, 0, 0,
-    200, 0, 0,
-    200, 0, -200,
-
-    //bottom
-    0, 200, 0,
-    0, 200, -200,
-    200, 200, -200,
-    0, 200, 0,
-    200, 200, -200,
-    200, 200, 0
-
-  ]), gl.STATIC_DRAW)
+  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(geometries.cube(200)), gl.STATIC_DRAW)
 }
 
 function setColor() {

@@ -40,8 +40,9 @@
 /******/ 	return __webpack_require__(0);
 /******/ })
 /************************************************************************/
-/******/ ([
-/* 0 */
+/******/ ({
+
+/***/ 0:
 /***/ function(module, exports, __webpack_require__) {
 
 	// var oui = require('ouioui');
@@ -49,6 +50,7 @@
 	var fShaderSource = __webpack_require__(2);
 	var creator = __webpack_require__(3);
 	var matrix = __webpack_require__(4);
+	var geometries = __webpack_require__(32);
 
 	var canvas = document.getElementById('myCanvas');
 	canvas.width = document.body.clientWidth;
@@ -62,7 +64,7 @@
 
 	gl.useProgram(program);
 	gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
-	// gl.enable(gl.CULL_FACE);
+	gl.enable(gl.CULL_FACE);
 	gl.enable(gl.DEPTH_TEST);
 
 	var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
@@ -88,16 +90,16 @@
 	// gl.uniform4f(colorUniformLocation, 1, 0, 1, 1);
 
 	var params = {
-	  translateX: 500,
+	  translateX: 600,
 	  translateY: 200,
 	  translateZ: 0,
 	  rotateX: 1,
 	  rotateY: 1,
-	  rotateZ: 0,
+	  rotateZ: 1,
 	  scaleX: 1,
 	  scaleY: 1,
 	  scaleZ: 1,
-	  fudgeFactor: 0.0
+	  fudgeFactor: 1.0
 	}
 
 
@@ -105,14 +107,14 @@
 	  var gui = new dat.GUI();
 	  gui.add(params, 'translateX', 0, 1000).onChange(draw);
 	  gui.add(params, 'translateY', 0, 1000).onChange(draw);
-	  gui.add(params, 'translateZ', 0, 1000).onChange(draw);
+	  gui.add(params, 'translateZ', 0, 400).onChange(draw);
 	  gui.add(params, 'rotateX', 0, 10).onChange(draw);
 	  gui.add(params, 'rotateY', 0, 10).onChange(draw);
 	  gui.add(params, 'rotateZ', 0, 10).onChange(draw);
 	  gui.add(params, 'scaleX', 0, 5).onChange(draw);
 	  gui.add(params, 'scaleY', 0, 5).onChange(draw);
 	  gui.add(params, 'scaleZ', 0, 5).onChange(draw);
-	  gui.add(params, 'fudgeFactor', 0.0, 1.0).onChange(draw);
+	  gui.add(params, 'fudgeFactor', 0.0, 2.0).onChange(draw);
 	}
 
 	draw();
@@ -158,57 +160,7 @@
 	}
 
 	function setGeometry() {
-	  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([
-	    //front
-	    0, 0, 0,
-	    0, 200, 0,
-	    200, 0, 0,
-	    200, 0, 0,
-	    0, 200, 0,
-	    200, 200, 0,
-
-	    //left
-	    0, 0, 0,
-	    0, 0, -200,
-	    0, 200, -200,
-	    0, 0, 0,
-	    0, 200, -200,
-	    0, 200, 0,
-
-	    //right
-	    200, 0, 0,
-	    200, 200, 0,
-	    200, 0, -200,
-	    200, 0, -200,
-	    200, 200, 0,
-	    200, 200, -200,
-
-	    //back
-	    0, 0, -200,
-	    0, 200, -200,
-	    200, 0, -200,
-	    200, 0, -200,
-	    0, 200, -200,
-	    200, 200, -200,
-
-
-	    //top
-	    0, 0, 0,
-	    200, 0, -200,
-	    0, 0, -200,
-	    0, 0, 0,
-	    200, 0, 0,
-	    200, 0, -200,
-
-	    //bottom
-	    0, 200, 0,
-	    0, 200, -200,
-	    200, 200, -200,
-	    0, 200, 0,
-	    200, 200, -200,
-	    200, 200, 0
-
-	  ]), gl.STATIC_DRAW)
+	  gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(geometries.cube(200)), gl.STATIC_DRAW)
 	}
 
 	function setColor() {
@@ -265,19 +217,22 @@
 
 
 /***/ },
-/* 1 */
+
+/***/ 1:
 /***/ function(module, exports) {
 
 	module.exports = "attribute vec4 a_position;\nattribute vec4 a_color;\n\nuniform float u_fudgeFactor;\nuniform mat4 u_matrix;\nvarying vec4 v_color;\n\nvoid main() {\n  vec4 position = u_matrix * a_position;\n  float zToDivideBy = 1.0 + position.z * u_fudgeFactor;\n  gl_Position = vec4(position.xy / zToDivideBy, position.zw);\n\n  v_color = a_color;\n}\n"
 
 /***/ },
-/* 2 */
+
+/***/ 2:
 /***/ function(module, exports) {
 
 	module.exports = "precision mediump float;\n\nvarying vec4 v_color;\n\nvoid main() {\n  gl_FragColor = v_color;\n}\n"
 
 /***/ },
-/* 3 */
+
+/***/ 3:
 /***/ function(module, exports) {
 
 	var creator = {
@@ -313,7 +268,8 @@
 
 
 /***/ },
-/* 4 */
+
+/***/ 4:
 /***/ function(module, exports) {
 
 	var matrix = {
@@ -429,5 +385,70 @@
 	module.exports = matrix;
 
 
+/***/ },
+
+/***/ 32:
+/***/ function(module, exports) {
+
+	var geometries = {
+	  cube: function(l) {
+	    return [
+	      //front
+	      0, 0, 0,
+	      0, l, 0,
+	      l, 0, 0,
+	      l, 0, 0,
+	      0, l, 0,
+	      l, l, 0,
+
+	      //left
+	      0, 0, 0,
+	      0, 0, l,
+	      0, l, 0,
+	      0, l, 0,
+	      0, 0, l,
+	      0, l, l,
+
+	      //right
+	      l, 0, 0,
+	      l, l, l,
+	      l, 0, l,
+	      l, 0, 0,
+	      l, l, 0,
+	      l, l, l,
+
+
+	      //back
+	      0, 0, l,
+	      l, 0, l,
+	      0, l, l,
+	      0, l, l,
+	      l, 0, l,
+	      l, l, l,
+
+
+	      //top
+	      0, 0, 0,
+	      l, 0, 0,
+	      0, 0, l,
+	      0, 0, l,
+	      l, 0, 0,
+	      l, 0, l,
+
+	      //bottom
+	      0, l, 0,
+	      0, l, l,
+	      l, l, 0,
+	      l, l, 0,
+	      0, l, l,
+	      l, l, l
+	    ];
+	  }
+	}
+
+	module.exports = geometries
+
+
 /***/ }
-/******/ ]);
+
+/******/ });
