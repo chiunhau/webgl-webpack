@@ -71,7 +71,7 @@ draw();
 
 function draw() {
   //clear canvas
-  gl.clearColor(1.0, 1.0, 1.0, 1.0);
+  gl.clearColor(1.0, 0.8, 0.9, 1.0);
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 
   var projectionMat = matrix.project(gl.canvas.width, gl.canvas.height, 1000);
