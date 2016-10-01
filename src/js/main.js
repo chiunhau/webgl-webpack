@@ -23,6 +23,7 @@ var positionAttributeLocation = gl.getAttribLocation(program, 'a_position');
 var colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
 // var colorUniformLocation = gl.getUniformLocation(program, 'u_color');
 var matrixUniformLocation = gl.getUniformLocation(program, 'u_matrix');
+var fudgeLocation = gl.getUniformLocation(program, 'u_fudgeFactor');
 
 var positionBuffer = gl.createBuffer();
 gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -49,7 +50,8 @@ var params = {
   rotateZ: 0,
   scaleX: 1,
   scaleY: 1,
-  scaleZ: 1
+  scaleZ: 1,
+  fudgeFactor: 0.0
 }
 
 
@@ -64,6 +66,7 @@ window.onload = function() {
   gui.add(params, 'scaleX', 0, 5).onChange(draw);
   gui.add(params, 'scaleY', 0, 5).onChange(draw);
   gui.add(params, 'scaleZ', 0, 5).onChange(draw);
+  gui.add(params, 'fudgeFactor', 0.0, 1.0).onChange(draw);
 }
 
 draw();
@@ -88,6 +91,7 @@ function draw() {
   transformation = matrix.multiply(transformation, projectionMat);
   //set transformation
 
+  gl.uniform1f(fudgeLocation, params.fudgeFactor);
   gl.uniformMatrix4fv(matrixUniformLocation, false, transformation);
   gl.drawArrays(gl.TRIANGLES, 0, 36);
 

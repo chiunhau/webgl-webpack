@@ -69,6 +69,7 @@
 	var colorAttributeLocation = gl.getAttribLocation(program, 'a_color');
 	// var colorUniformLocation = gl.getUniformLocation(program, 'u_color');
 	var matrixUniformLocation = gl.getUniformLocation(program, 'u_matrix');
+	var fudgeLocation = gl.getUniformLocation(program, 'u_fudgeFactor');
 
 	var positionBuffer = gl.createBuffer();
 	gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
@@ -95,7 +96,8 @@
 	  rotateZ: 0,
 	  scaleX: 1,
 	  scaleY: 1,
-	  scaleZ: 1
+	  scaleZ: 1,
+	  fudgeFactor: 0.0
 	}
 
 
@@ -110,6 +112,7 @@
 	  gui.add(params, 'scaleX', 0, 5).onChange(draw);
 	  gui.add(params, 'scaleY', 0, 5).onChange(draw);
 	  gui.add(params, 'scaleZ', 0, 5).onChange(draw);
+	  gui.add(params, 'fudgeFactor', 0.0, 1.0).onChange(draw);
 	}
 
 	draw();
@@ -134,6 +137,7 @@
 	  transformation = matrix.multiply(transformation, projectionMat);
 	  //set transformation
 
+	  gl.uniform1f(fudgeLocation, params.fudgeFactor);
 	  gl.uniformMatrix4fv(matrixUniformLocation, false, transformation);
 	  gl.drawArrays(gl.TRIANGLES, 0, 36);
 
@@ -263,7 +267,7 @@
 /* 1 */
 /***/ function(module, exports) {
 
-	module.exports = "attribute vec4 a_position;\nattribute vec4 a_color;\n\nuniform mat4 u_matrix;\nvarying vec4 v_color;\n\nvoid main() {\n  gl_Position = u_matrix * a_position;\n  v_color = a_color;\n}\n"
+	module.exports = "attribute vec4 a_position;\nattribute vec4 a_color;\n\nuniform float u_fudgeFactor;\nuniform mat4 u_matrix;\nvarying vec4 v_color;\n\nvoid main() {\n  vec4 position = u_matrix * a_position;\n  float zToDivideBy = 1.0 + position.z * u_fudgeFactor;\n  gl_Position = vec4(position.xy / zToDivideBy, position.zw);\n\n  v_color = a_color;\n}\n"
 
 /***/ },
 /* 2 */
